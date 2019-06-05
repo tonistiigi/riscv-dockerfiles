@@ -1,0 +1,25 @@
+commit 4b28c179934ad8cef656482422f75caf040b7221
+Author: Tonis Tiigi <tonistiigi@gmail.com>
+Date:   Tue Jun 4 22:52:20 2019 -0700
+
+    allow running under qemu-user
+    
+    Signed-off-by: Tonis Tiigi <tonistiigi@gmail.com>
+
+diff --git a/src/libcrun/linux.c b/src/libcrun/linux.c
+index 5161b51..c2e36c3 100644
+--- a/src/libcrun/linux.c
++++ b/src/libcrun/linux.c
+@@ -2343,6 +2343,12 @@ libcrun_container_unpause_linux (libcrun_container_status_t *status, const char
+ int ensure_cloned_binary ();
+ __attribute__((constructor)) static void libcrun_rexec(void)
+ {
++	// https://github.com/tiborvass/qemu/commit/a3b4db245017e37662a919e42622aaca9c375949
++	int fd = open("/proc/self/is_qemu", O_RDONLY);
++	if (fd >= 0) {
++		close(fd);
++		return;
++	}
+   if (ensure_cloned_binary () < 0)
+     {
+       fprintf (stderr, "Failed to re-execute libcrun via memory file descriptor\n");
