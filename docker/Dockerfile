@@ -33,10 +33,10 @@ RUN ./autogen.sh && \
   PKG_CONFIG_PATH=/usr/lib/riscv64-linux-gnu/pkgconfig LDFLAGS="-L/usr/lib/riscv64-linux-gnu" ./configure --host=riscv64-linux && \
   make
 
-FROM alpine AS runc
+FROM --platform=$BUILDPLATFORM alpine AS runc
 RUN mkdir /out && cd out && ln -s crun runc
 
-FROM --platform=$BUILDPLATFORM tonistiigi/xx:go-riscv AS docker
+FROM --platform=$BUILDPLATFORM tonistiigi/xx:golang-riscv AS docker
 RUN apk add --no-cache coreutils
 RUN git clone git://github.com/tonistiigi/docker-cli -b update-vendor /go/src/github.com/docker/cli
 ARG TARGETPLATFORM
@@ -44,7 +44,7 @@ WORKDIR /go/src/github.com/docker/cli
 RUN sh ./scripts/build/binary
 
 
-FROM --platform=$BUILDPLATFORM tonistiigi/xx:go-riscv AS containerd
+FROM --platform=$BUILDPLATFORM tonistiigi/xx:golang-riscv AS containerd
 RUN git clone git://github.com/tonistiigi/containerd -b update-vendor --depth=1 /go/src/github.com/containerd/containerd
 ARG TARGETPLATFORM
 WORKDIR /go/src/github.com/containerd/containerd
@@ -52,7 +52,7 @@ RUN mkdir out && go build -o /out/ctr ./cmd/ctr && \
   go build -o /out/containerd-shim ./cmd/containerd-shim && \
   go build -o /out/containerd -tags no_btrfs ./cmd/containerd
 
-FROM --platform=$BUILDPLATFORM tonistiigi/xx:go-riscv AS dockerd
+FROM --platform=$BUILDPLATFORM tonistiigi/xx:golang-riscv AS dockerd
 RUN git clone git://github.com/tonistiigi/docker /go/src/github.com/docker/docker && \
   cd /go/src/github.com/docker/docker && \
   git checkout 3de77084d559055e87414c2669b22091a8396990
