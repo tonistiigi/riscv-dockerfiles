@@ -55,10 +55,10 @@ RUN mkdir out && go build -o /out/ctr ./cmd/ctr && \
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:golang-riscv AS dockerd
 RUN git clone git://github.com/tonistiigi/docker /go/src/github.com/docker/docker && \
   cd /go/src/github.com/docker/docker && \
-  git checkout 3de77084d559055e87414c2669b22091a8396990
+  git checkout eb8507f75da8c2939c7ec84bf87d9b821bc77a8f
 ARG TARGETPLATFORM
 WORKDIR /go/src/github.com/docker/docker
-RUN go build -o /out/dockerd -tags "no_quota_support exclude_graphdriver_devicemapper" ./cmd/dockerd/
+RUN go build -o /out/dockerd -tags "exclude_disk_quota exclude_graphdriver_devicemapper" ./cmd/dockerd/
 
 FROM scratch AS dist
 COPY --from=libseccomp /out/ /lib/
